@@ -1,0 +1,12 @@
+version: '3' # 버전 지정
+
+services: # 컨테이너 설정
+  soon_mysql_docker:
+    image: mysql:latest
+    # volumes:
+    #   - ./mysqldata:/var/lib/mysql
+    environment: # 컨테이너 안의 환경변수 설정
+      - MYSQL_ROOT_PASSWORD=test1234
+      - MYSQL_DATABASE=ssoon_db
+    ports:
+      - '3307:3306'
