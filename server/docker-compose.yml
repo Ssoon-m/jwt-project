@@ -1,7 +1,9 @@
 version: '3' # 버전 지정
 
 services: # 컨테이너 설정
-  soon_mysql_docker:
+  db:
+    container_name: soon_mysql_docker
+    restart: always
     image: mysql:latest
     # volumes:
     #   - ./mysqldata:/var/lib/mysql
