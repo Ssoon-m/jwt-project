@@ -4,7 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { User } from './users/user.entity';
+import { User } from './users/entity/user.entity';
+import { Token } from './auth/entity/token.entity';
 import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { ConfigModule } from '@nestjs/config';
       username: 'root',
       password: 'test1234',
       database: 'ssoon_db',
-      entities: [User],
+      entities: [User, Token],
       synchronize: true,
     }),
     AuthModule,

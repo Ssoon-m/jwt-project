@@ -1,7 +1,7 @@
 // user.dto.ts
 import { IsString } from 'class-validator';
 
-export class CreateUserDto {
+export class TokenDTO {
   @IsString()
   username: string;
 
