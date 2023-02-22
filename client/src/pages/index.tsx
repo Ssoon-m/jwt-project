@@ -1,10 +1,14 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { Inter } from '@next/font/google';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/router';
+import { Box } from '@mui/system';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -13,7 +17,35 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main></main>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            flex: 1,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Box>
+            <Button color="inherit" onClick={() => router.push('/auth/login')}>
+              로그인
+            </Button>
+            <Button
+              color="secondary"
+              variant="contained"
+              disableElevation
+              onClick={() => router.push('/auth/register')}
+            >
+              회원가입
+            </Button>
+          </Box>
+          <Box>
+            <Button>회원정보 가져오기</Button>
+          </Box>
+        </Box>
+      </main>
     </>
   );
 }
