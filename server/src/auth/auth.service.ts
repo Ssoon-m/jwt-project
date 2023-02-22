@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +21,7 @@ export interface ITokenResponse {
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -23,10 +29,7 @@ export class AuthService {
     private tokenRepository: Repository<Token>,
   ) {}
 
-  async validateUser(
-    username: string,
-    password: string,
-  ): Promise<ITokenResponse | null> {
+  async validateUser(username: string, password: string) {
     const user = await this.usersService.findOne(username);
     if (user && user.password === password) {
       const { accessToken, refreshToken } = await this.generateTokens(user);

@@ -13,7 +13,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService, ITokenResponse } from './auth.service';
 import { Request, Response } from 'express';
 
-const tokenCookieGenerator = (res: Response) => {
+export const tokenCookieGenerator = (res: Response) => {
   return {
     setTokenCookie(type: 'access_token' | 'refresh_token', token: string) {
       let expireAt: Date;

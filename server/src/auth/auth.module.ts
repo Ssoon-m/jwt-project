@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
@@ -10,11 +10,12 @@ import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule),
     PassportModule,
     TypeOrmModule.forFeature([Token]),
     JwtModule,
   ],
+  exports: [AuthService],
   providers: [AuthService, LocalStrategy],
   controllers: [AuthController],
 })
