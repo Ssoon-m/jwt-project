@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserInfoDto } from 'src/users/dto/user.dto';
 import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';

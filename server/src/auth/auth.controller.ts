@@ -39,7 +39,7 @@ export class AuthController {
   }
 
   @Post('refresh')
-  refresh(
+  async refresh(
     @Req() req: Request,
     @Body() { refresh }: { refresh?: string },
     @Res({ passthrough: true }) res: Response,
@@ -48,8 +48,19 @@ export class AuthController {
     if (!refreshToken) {
       throw new BadRequestException('empty refresh token');
     }
-    const data = this.authService.verifyRefreshToken(refreshToken);
-    return data;
+    const token = await this.authService.verifyRefreshToken(refreshToken);
+    res.cookie('access_token', token.accessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 1000 * 30),
+      path: '/',
+    });
+    res.cookie('refresh_token', token.refreshToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      path: '/',
+    });
+
+    return token;
   }
 
   @Get('me')
