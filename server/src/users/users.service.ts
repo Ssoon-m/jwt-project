@@ -16,7 +16,7 @@ export class UsersService {
       username: createUserDto.username,
     });
     if (isExist) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('이미 존재하는 유저입니다.');
     }
     const { password, ...result } = await this.usersRepository.save(
       createUserDto,

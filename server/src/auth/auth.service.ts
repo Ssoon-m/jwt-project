@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInfoDto } from 'src/users/dto/user.dto';
-import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { RefreshTokenDTO, AccessTokenDTO } from './dto/token.dto';
@@ -62,4 +61,24 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+
+  verifyAccessToken(accessToken: string) {
+    try {
+      const verify = this.jwtService.verify<AccessTokenDTO>(accessToken, {
+        secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+      });
+      return verify;
+    } catch (e) {
+      switch (e.name) {
+        case 'TokenExpiredError':
+          throw new UnauthorizedException('token expired error');
+        case 'JsonWebTokenError':
+          throw new UnauthorizedException('json web token error');
+      }
+      throw e;
+    }
+  }
+
+  // async verifyRefreshToken(refreshToken: string) {
+  // }
 }
