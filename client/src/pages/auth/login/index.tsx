@@ -10,11 +10,7 @@ const LoginPage = () => {
     },
     { withCredentials: true },
   );
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <LoginForm />
-    </div>
-  );
+  return <LoginForm />;
 };
 
 export default LoginPage;
