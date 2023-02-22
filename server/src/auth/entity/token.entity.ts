@@ -12,8 +12,10 @@ import {
 export class Token {
   @PrimaryGeneratedColumn()
   id: number;
-  // @Column({default:1})
-  // rotationCounter: number;
+
+  @Column({ default: 1 })
+  rotationCounter: number;
+
   @Column({ default: false })
   blocked: boolean;
 

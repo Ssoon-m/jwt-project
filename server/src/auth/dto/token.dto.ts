@@ -1,10 +1,17 @@
 // user.dto.ts
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
-export class TokenDTO {
+export class AccessTokenDTO {
+  @IsNumber()
+  tokenId: number;
+  @IsNumber()
+  userId: number;
   @IsString()
   username: string;
-
-  @IsString()
-  password: string;
+}
+export class RefreshTokenDTO {
+  @IsNumber()
+  tokenId: number;
+  @IsNumber()
+  rotationCounter: number;
 }
