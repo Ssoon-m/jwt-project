@@ -94,13 +94,33 @@ export class AuthService {
         this.jwtService.verify<RefreshTokenDTO>(refreshToken, {
           secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
         });
-      const tokenItem = await this.tokenRepository.find({
+      const tokenItem = await this.tokenRepository.findOne({
         where: {
           id: tokenId,
         },
         relations: ['user'],
       });
-      console.log('tokenItem', tokenItem);
+      if (!tokenItem) {
+        throw new UnauthorizedException('Token not found');
+      }
+      if (tokenItem.blocked) {
+        throw new UnauthorizedException('Token is blocked');
+      }
+      if (tokenItem.rotationCounter !== rotationCounter) {
+        await this.tokenRepository.update(
+          {
+            id: tokenItem.id,
+          },
+          { blocked: true },
+        );
+        throw new UnauthorizedException('Rotation counter does not match');
+      }
+      tokenItem.rotationCounter += 1;
+      await this.tokenRepository.update(
+        { id: tokenItem.id },
+        { rotationCounter: tokenItem.rotationCounter },
+      );
+      return this.generateTokens(tokenItem.user, tokenItem);
     } catch (e) {
       switch (e.name) {
         case 'TokenExpiredError':
@@ -111,7 +131,4 @@ export class AuthService {
       throw e;
     }
   }
-
-  // async verifyRefreshToken(refreshToken: string) {
-  // }
 }

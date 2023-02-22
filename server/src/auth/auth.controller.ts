@@ -48,9 +48,8 @@ export class AuthController {
     if (!refreshToken) {
       throw new BadRequestException('empty refresh token');
     }
-
-    this.authService.verifyRefreshToken(refreshToken);
-    return 'sdf';
+    const data = this.authService.verifyRefreshToken(refreshToken);
+    return data;
   }
 
   @Get('me')
