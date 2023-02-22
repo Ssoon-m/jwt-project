@@ -3,10 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInfoDto } from 'src/users/dto/user.dto';
+import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { RefreshTokenDTO, AccessTokenDTO } from './dto/token.dto';
 import { Token } from './entity/token.entity';
+
+export interface ITokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -18,11 +24,14 @@ export class AuthService {
     private tokenRepository: Repository<Token>,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any | null> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<ITokenResponse | null> {
     const user = await this.usersService.findOne(username);
     if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
+      const { accessToken, refreshToken } = await this.generateTokens(user);
+      return { accessToken, refreshToken };
     }
     return null;
   }
@@ -43,13 +52,13 @@ export class AuthService {
     return token;
   }
 
-  async generateTokens(user: UserInfoDto, tokenItem?: Token): Promise<any> {
+  async generateTokens(user: User, tokenItem?: Token): Promise<ITokenResponse> {
     const token = tokenItem ?? (await this.tokenRepository.save({ user }));
     const tokenId = token.id;
 
     const [accessToken, refreshToken] = await Promise.all([
       this.signAccessToken({
-        userId: user.userId,
+        userId: user.id,
         username: user.username,
         tokenId,
       }),
@@ -68,6 +77,30 @@ export class AuthService {
         secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       });
       return verify;
+    } catch (e) {
+      switch (e.name) {
+        case 'TokenExpiredError':
+          throw new UnauthorizedException('token expired error');
+        case 'JsonWebTokenError':
+          throw new UnauthorizedException('json web token error');
+      }
+      throw e;
+    }
+  }
+
+  async verifyRefreshToken(refreshToken: string) {
+    try {
+      const { tokenId, rotationCounter } =
+        this.jwtService.verify<RefreshTokenDTO>(refreshToken, {
+          secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+        });
+      const tokenItem = await this.tokenRepository.find({
+        where: {
+          id: tokenId,
+        },
+        relations: ['user'],
+      });
+      console.log('tokenItem', tokenItem);
     } catch (e) {
       switch (e.name) {
         case 'TokenExpiredError':
