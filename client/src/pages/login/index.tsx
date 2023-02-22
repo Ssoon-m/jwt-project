@@ -1,17 +1,17 @@
-import LoginForm from "@/components/LoginForm";
-import React from "react";
-import api from "@/lib/apis";
+import LoginForm from '@/components/LoginForm';
+import React from 'react';
+import api from '@/lib/apis';
 const LoginPage = () => {
   api.post(
-    "/auth/login",
+    '/auth/login',
     {
-      username: "tkksm",
-      password: "12341234",
+      username: 'tkksm',
+      password: '12341234',
     },
-    { withCredentials: true }
+    { withCredentials: true },
   );
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
       <LoginForm />
     </div>
   );
