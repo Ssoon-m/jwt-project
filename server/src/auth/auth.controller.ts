@@ -13,6 +13,23 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService, ITokenResponse } from './auth.service';
 import { Request, Response } from 'express';
 
+const tokenCookieGenerator = (res: Response) => {
+  return {
+    setTokenCookie(type: 'access_token' | 'refresh_token', token: string) {
+      let expireAt: Date;
+      if (type === 'access_token') {
+        expireAt = new Date(Date.now() + 1000 * 30);
+      } else if (type === 'refresh_token') {
+        expireAt = new Date(Date.now() + 1000 * 60 * 60 * 24);
+      }
+      res.cookie(type, token, {
+        httpOnly: true,
+        expires: expireAt,
+        path: '/',
+      });
+    },
+  };
+};
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -22,16 +39,10 @@ export class AuthController {
     @Req() req: { user: ITokenResponse },
     @Res({ passthrough: true }) res: Response,
   ) {
-    res.cookie('access_token', req.user.accessToken, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 30),
-      path: '/',
-    });
-    res.cookie('refresh_token', req.user.refreshToken, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-      path: '/',
-    });
+    const { setTokenCookie } = tokenCookieGenerator(res);
+    setTokenCookie('access_token', req.user.accessToken);
+    setTokenCookie('refresh_token', req.user.refreshToken);
+
     return {
       accessToken: req.user.accessToken,
       refreshToken: req.user.refreshToken,
@@ -49,17 +60,10 @@ export class AuthController {
       throw new BadRequestException('empty refresh token');
     }
     const token = await this.authService.verifyRefreshToken(refreshToken);
-    res.cookie('access_token', token.accessToken, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 30),
-      path: '/',
-    });
-    res.cookie('refresh_token', token.refreshToken, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-      path: '/',
-    });
 
+    const { setTokenCookie } = tokenCookieGenerator(res);
+    setTokenCookie('access_token', token.accessToken);
+    setTokenCookie('refresh_token', token.refreshToken);
     return token;
   }
 
