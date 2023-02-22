@@ -11,6 +11,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  await app.listen(3000);
+  app.enableCors({
+    origin: true,
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH',
+    credentials: true,
+  });
+  await app.listen(3065);
 }
+
 bootstrap();
