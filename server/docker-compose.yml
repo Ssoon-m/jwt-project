@@ -8,7 +8,25 @@ services: # 컨테이너 설정
     # volumes:
     #   - ./mysqldata:/var/lib/mysql
     environment: # 컨테이너 안의 환경변수 설정
-      - MYSQL_ROOT_PASSWORD=test1234
-      - MYSQL_DATABASE=ssoon_db
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     ports:
       - '3307:3306'
+  server:
+    container_name: soon_jwt-server
+    restart: on-failure:10
+    image: soon-jwt-server
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - db
+    ports:
+      - '3065:3065'
+    environment:
+      - DB_HOST=soon_mysql_docker
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+    command: ['sh', '-c', 'sleep 20 && node dist/main']
