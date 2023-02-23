@@ -1,14 +1,33 @@
 import Head from 'next/head';
-import Image from 'next/image';
-import { Inter } from '@next/font/google';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Box } from '@mui/system';
+import Layout from '@/components/Layout';
+import { getMe } from '@/lib/apis/me';
+import { useState } from 'react';
+import { GetServerSideProps } from 'next';
+import { getCookie } from 'cookies-next';
+import { withAuth } from './hoc/withAuth';
+import { postRefresh } from '@/lib/apis/auth';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export default function Home() {
+//TODO: 토큰 refresh 로직 구현
+const Home = () => {
   const router = useRouter();
+  const [username, setUsername] = useState('');
+
+  const handleGetMe = async () => {
+    try {
+      const { username } = await getMe();
+      setUsername(username);
+    } catch (e: any) {
+      alert(e.response.data.message);
+    }
+  };
+
+  const handleRefreshToken = async () => {
+    await postRefresh();
+  };
+
   return (
     <>
       <Head>
@@ -17,17 +36,8 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <Box
-          sx={{
-            flex: 1,
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+      <main style={{ height: '100%' }}>
+        <Layout>
           <Box>
             <Button color="inherit" onClick={() => router.push('/auth/login')}>
               로그인
@@ -42,10 +52,29 @@ export default function Home() {
             </Button>
           </Box>
           <Box>
-            <Button>회원정보 가져오기</Button>
+            <Button onClick={handleGetMe}>회원정보 가져오기</Button>
+            <Typography>{username}</Typography>
+            <Button onClick={handleRefreshToken}>토큰 리프레쉬</Button>
           </Box>
-        </Box>
+        </Layout>
       </main>
     </>
   );
-}
+};
+
+export default Home;
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const accessToken = getCookie('access_token', { req });
+  if (!accessToken) {
+    return {
+      redirect: {
+        destination: '/auth/login',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};

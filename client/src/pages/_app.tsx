@@ -3,12 +3,10 @@ import { Box, Container } from '@mui/material';
 import '@/styles/reset.css';
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="xs">
       <Box
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
+          height: '100vh',
         }}
       >
         <Component {...pageProps} />

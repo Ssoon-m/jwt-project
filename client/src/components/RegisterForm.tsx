@@ -1,10 +1,9 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { postAuthLogin } from '@/lib/apis/auth';
+import { postUser } from '@/lib/apis/auth';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
-
-const LoginForm = () => {
+const RegisterForm = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +16,7 @@ const LoginForm = () => {
   };
   const handleSubmit = async () => {
     try {
-      await postAuthLogin({
+      await postUser({
         username,
         password,
       });
@@ -37,7 +36,7 @@ const LoginForm = () => {
         gap: '12px',
       }}
     >
-      <Typography variant="h5">로그인해주세요~</Typography>
+      <Typography variant="h5">회원가입해주세요~</Typography>
       <TextField
         id="outlined-basic"
         label="username"
@@ -61,13 +60,13 @@ const LoginForm = () => {
         fullWidth
         onClick={handleSubmit}
       >
-        로그인
+        회원가입
       </Button>
       <Typography align="center">
-        계정이 없으신가요? <Link href="/auth/register">회원가입</Link>
+        계정이 이미 있으신가요? <Link href="/auth/login">로그인</Link>
       </Typography>
     </Box>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
