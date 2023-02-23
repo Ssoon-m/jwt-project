@@ -73,7 +73,7 @@ export class AuthController {
     @Req() req: Request,
   ) {
     const accessToken =
-      header?.split('Bearer ')[1] ?? req.cookies['access_token'];
+      header?.split('Bearer ')[1] ?? req.cookies?.['access_token'];
     const { username, userId } =
       this.authService.verifyAccessToken(accessToken);
     return { userId, username };
