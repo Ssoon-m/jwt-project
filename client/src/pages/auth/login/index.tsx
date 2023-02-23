@@ -16,7 +16,6 @@ export default LoginPage;
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const accessToken = getCookie('access_token', { req });
   if (accessToken) {
-    alert('로그인 상태 이므로 로그인 페이지 안 가짐');
     return {
       redirect: {
         destination: '/',
