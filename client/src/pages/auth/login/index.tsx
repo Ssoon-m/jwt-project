@@ -1,8 +1,9 @@
 import LoginForm from '@/components/LoginForm';
 import React from 'react';
 import Layout from '@/components/Layout';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getCookie } from 'cookies-next';
+import { withLogin } from '@/hoc/withLogin';
 const LoginPage = () => {
   return (
     <Layout>
@@ -13,17 +14,8 @@ const LoginPage = () => {
 
 export default LoginPage;
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const accessToken = getCookie('access_token', { req });
-  if (accessToken) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
+export const getServerSideProps: GetServerSideProps = withLogin((context) => {
   return {
     props: {},
   };
-};
+});

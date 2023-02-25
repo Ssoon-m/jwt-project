@@ -5,10 +5,9 @@ import { Box } from '@mui/system';
 import Layout from '@/components/Layout';
 import { getMe } from '@/lib/apis/me';
 import { useState } from 'react';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getCookie } from 'cookies-next';
-import { withAuth } from './hoc/withAuth';
-import { postRefresh } from '@/lib/apis/auth';
+import { withNotAuth } from '../hoc/withNotAuth';
 
 //TODO: 토큰 refresh 로직 구현
 const Home = () => {
@@ -22,10 +21,6 @@ const Home = () => {
     } catch (e: any) {
       alert(e.response.data.message);
     }
-  };
-
-  const handleRefreshToken = async () => {
-    await postRefresh();
   };
 
   return (
@@ -54,7 +49,6 @@ const Home = () => {
           <Box>
             <Button onClick={handleGetMe}>회원정보 가져오기</Button>
             <Typography>{username}</Typography>
-            <Button onClick={handleRefreshToken}>토큰 리프레쉬</Button>
           </Box>
         </Layout>
       </main>
@@ -64,17 +58,8 @@ const Home = () => {
 
 export default Home;
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const accessToken = getCookie('access_token', { req });
-  if (!accessToken) {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
-  }
+export const getServerSideProps: GetServerSideProps = withNotAuth((context) => {
   return {
     props: {},
   };
-};
+});
