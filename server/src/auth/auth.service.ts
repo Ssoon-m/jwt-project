@@ -86,8 +86,6 @@ export class AuthService {
       switch (e.name) {
         case 'TokenExpiredError':
           throw new UnauthorizedException('token expired error');
-        case 'JsonWebTokenError':
-          throw new UnauthorizedException('json web token error');
       }
       throw e;
     }
