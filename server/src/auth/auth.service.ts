@@ -75,6 +75,9 @@ export class AuthService {
 
   verifyAccessToken(accessToken: string) {
     try {
+      if (!accessToken) {
+        throw new UnauthorizedException('not exist access_token');
+      }
       const verify = this.jwtService.verify<AccessTokenDTO>(accessToken, {
         secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       });
