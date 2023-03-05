@@ -68,7 +68,7 @@ export class AuthService {
       this.signAccessToken({
         userId: user.id,
         username: user.username,
-        authorities: user.authorities.map((user) => user.authorityName),
+        authorities: user.authorities?.map((user) => user.authorityName),
         tokenId,
       }),
       this.signRefreshToken({
