@@ -8,8 +8,8 @@ import { useState } from 'react';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getCookie } from 'cookies-next';
 import { withNotAuth } from '../hoc/withNotAuth';
+import { postAdmin, postRefreshToken } from '@/lib/apis/auth';
 
-//TODO: 토큰 refresh 로직 구현
 const Home = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
@@ -21,6 +21,11 @@ const Home = () => {
     } catch (e: any) {
       alert(e.response.data.message);
     }
+  };
+
+  const handleGrantAdminRole = async () => {
+    // await postAdmin(4);
+    // await postRefreshToken();
   };
 
   return (
@@ -49,6 +54,9 @@ const Home = () => {
           <Box>
             <Button onClick={handleGetMe}>회원정보 가져오기</Button>
             <Typography>{username}</Typography>
+          </Box>
+          <Box>
+            <Button onClick={handleGrantAdminRole}>어드민 권한 부여</Button>
           </Box>
         </Layout>
       </main>

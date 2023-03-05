@@ -20,10 +20,10 @@ function getTokenRemainingTime(token: string) {
 function App({ Component, pageProps }: AppProps): ReactElement {
   return (
     <TokenRefreshProvider>
-      <Container maxWidth="xs">
+      <Container maxWidth="xs" sx={{ height: '100%' }}>
         <Box
           sx={{
-            height: '100vh',
+            height: '100%',
           }}
         >
           <Component {...pageProps} />

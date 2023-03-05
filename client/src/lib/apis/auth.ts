@@ -20,8 +20,12 @@ const postUser = async (user: Omit<IUser, 'userId'>) => {
 
 const postRefreshToken = async () => {
   return await api
-    .post('auth/refresh', {}, { withCredentials: true })
+    .post('/auth/refresh', {}, { withCredentials: true })
     .then((res) => res.data);
 };
 
-export { postAuthLogin, postUser, postRefreshToken };
+const postAdmin = async (userId: IUser['userId']) => {
+  return await api.post('/auth/admin', { userId });
+};
+
+export { postAuthLogin, postUser, postRefreshToken, postAdmin };

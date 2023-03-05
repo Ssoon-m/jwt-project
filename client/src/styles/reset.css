@@ -8,6 +8,7 @@
 }
 
 html,
+#__next,
 body {
   height: 100%;
 }
