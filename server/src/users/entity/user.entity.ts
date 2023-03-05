@@ -1,4 +1,5 @@
 import { Token } from 'src/auth/entity/token.entity';
+import { UserAuthority } from 'src/auth/entity/user-authority.entity';
 import {
   Entity,
   Column,
@@ -27,4 +28,9 @@ export class User {
 
   @OneToMany(() => Token, (token) => token.user)
   tokens: Token[];
+
+  @OneToMany(() => UserAuthority, (UserAuthority) => UserAuthority.user, {
+    eager: true,
+  })
+  authorities?: UserAuthority[];
 }

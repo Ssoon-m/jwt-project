@@ -13,6 +13,7 @@ import { AuthService, ITokenResponse } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AccessTokenDTO } from './dto/token.dto';
+import { RoleType } from './type/role-type';
 
 export const tokenCookieGenerator = (res: Response) => {
   return {
@@ -72,5 +73,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: { user: AccessTokenDTO } & Request) {
     return req.user;
+  }
+
+  @Post('/admin')
+  grantAdmin(@Body() { userId }: { userId: number }) {
+    const userAuthority = this.authService.grantRoleByUserId(
+      userId,
+      RoleType.ADMIN,
+    );
+
+    return userAuthority;
   }
 }

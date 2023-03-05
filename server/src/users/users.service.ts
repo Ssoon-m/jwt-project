@@ -31,6 +31,10 @@ export class UsersService {
     return { tokens, user };
   }
 
+  async findOneByUserId(userId: number) {
+    return this.usersRepository.findOneBy({ id: userId });
+  }
+
   async findOne(username: string) {
     return this.usersRepository.findOneBy({ username });
   }

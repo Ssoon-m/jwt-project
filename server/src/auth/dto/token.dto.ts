@@ -1,11 +1,14 @@
 // user.dto.ts
-import { IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
+import { RoleType } from '../type/role-type';
 
 export class AccessTokenDTO {
   @IsNumber()
   tokenId: number;
   @IsNumber()
   userId: number;
+  @IsArray()
+  authorities: RoleType[];
   @IsString()
   username: string;
 }

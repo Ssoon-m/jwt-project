@@ -4,9 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { User } from './users/entity/user.entity';
 import { Token } from './auth/entity/token.entity';
+import { User } from './users/entity/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserAuthority } from './auth/entity/user-authority.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -18,7 +19,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token],
+        entities: [User, Token, UserAuthority],
         synchronize: true,
       }),
       inject: [ConfigService],

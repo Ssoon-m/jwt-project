@@ -1,7 +1,9 @@
 import {
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +14,8 @@ import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { RefreshTokenDTO, AccessTokenDTO } from './dto/token.dto';
 import { Token } from './entity/token.entity';
+import { UserAuthority } from './entity/user-authority.entity';
+import { RoleType } from './type/role-type';
 
 export interface ITokenResponse {
   accessToken: string;
@@ -27,6 +31,8 @@ export class AuthService {
     private readonly configService: ConfigService,
     @InjectRepository(Token)
     private tokenRepository: Repository<Token>,
+    @InjectRepository(UserAuthority)
+    private userAuthorityRepository: Repository<UserAuthority>,
   ) {}
 
   async validateUser(username: string, password: string) {
@@ -62,6 +68,7 @@ export class AuthService {
       this.signAccessToken({
         userId: user.id,
         username: user.username,
+        authorities: user.authorities.map((user) => user.authorityName),
         tokenId,
       }),
       this.signRefreshToken({
@@ -133,5 +140,25 @@ export class AuthService {
       }
       throw e;
     }
+  }
+
+  async grantRoleByUserId(userId: number, authorityName: RoleType) {
+    const user = await this.usersService.findOneByUserId(userId);
+    if (!user)
+      throw new NotFoundException(
+        'NOT_FOUND_USER',
+        '사용자를 찾을 수 없습니다.',
+      );
+
+    const isExistAuthority = user.authorities.some(
+      (user) => user.authorityName === authorityName,
+    );
+    if (isExistAuthority) throw new ConflictException('already exists roles');
+
+    const userAuthority = await this.userAuthorityRepository.save({
+      user,
+      authorityName,
+    });
+    return userAuthority;
   }
 }

@@ -8,12 +8,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Token } from './entity/token.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { UserAuthority } from './entity/user-authority.entity';
+import { User } from 'src/users/entity/user.entity';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
     PassportModule,
-    TypeOrmModule.forFeature([Token]),
+    TypeOrmModule.forFeature([Token, UserAuthority, User]),
     JwtModule,
   ],
   exports: [AuthService],
