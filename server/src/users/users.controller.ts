@@ -18,4 +18,7 @@ export class UsersController {
     setTokenCookie('refresh_token', tokens.refreshToken);
     return { tokens, user };
   }
+
+  // @Post('/admin')
+  // async grantAdmin() {}
 }

@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Get,
-  Headers,
   Post,
   Req,
   Res,
@@ -12,6 +11,8 @@ import {
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService, ITokenResponse } from './auth.service';
 import { Request, Response } from 'express';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { AccessTokenDTO } from './dto/token.dto';
 
 export const tokenCookieGenerator = (res: Response) => {
   return {
@@ -36,7 +37,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
-    @Req() req: { user: ITokenResponse },
+    @Req() req: { user: ITokenResponse } & Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { setTokenCookie } = tokenCookieGenerator(res);
@@ -68,14 +69,8 @@ export class AuthController {
   }
 
   @Get('me')
-  getProfile(
-    @Headers('Authorization') header: string | undefined,
-    @Req() req: Request,
-  ) {
-    const accessToken =
-      header?.split('Bearer ')[1] ?? req.cookies?.['access_token'];
-    const { username, userId } =
-      this.authService.verifyAccessToken(accessToken);
-    return { userId, username };
+  @UseGuards(JwtAuthGuard)
+  getProfile(@Req() req: { user: AccessTokenDTO } & Request) {
+    return req.user;
   }
 }
