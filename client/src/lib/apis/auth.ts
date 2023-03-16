@@ -18,9 +18,13 @@ const postUser = async (user: Omit<IUser, 'userId'>) => {
     .then((res) => res.data);
 };
 
-const postRefreshToken = async () => {
+const postRefreshToken = async ({ refresh }: { refresh?: string } = {}) => {
   return await api
-    .post('/auth/refresh', {}, { withCredentials: true })
+    .post<{ accessToken: string; refreshToken: string }>(
+      '/auth/refresh',
+      { refresh },
+      { withCredentials: true },
+    )
     .then((res) => res.data);
 };
 

@@ -5,9 +5,15 @@ import { TokenRefreshProvider } from '@/lib/token/TokenRefreshContext';
 import Core from '@/lib/token/Core';
 import { ReactElement } from 'react';
 import { decode } from 'js-base64';
+import { postRefreshToken } from '@/lib/apis/auth';
 
 function extractAccessToken(cookie: string) {
   const match = cookie.match(/access_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
+function extractRefreshToken(cookie: string) {
+  const match = cookie.match(/refresh_token=([^;]+)/);
   return match ? match[1] : null;
 }
 
@@ -44,8 +50,25 @@ App.getInitialProps = async ({ Component, ctx }: AppContext) => {
 
   if (Cookie) {
     const access_token = extractAccessToken(Cookie);
+    const refresh_token = extractRefreshToken(Cookie);
     if (access_token) {
       pageProps.tokenRemainingTime = getTokenRemainingTime(access_token);
+    } else if (!access_token && refresh_token) {
+      try {
+        const { accessToken, refreshToken } = await postRefreshToken({
+          refresh: refresh_token,
+        });
+        ctx.res?.setHeader('Set-Cookie', [
+          `access_token=${accessToken}; path=/; expires=${new Date(
+            Date.now() + 1000 * 30,
+          )}; HttpOnly`,
+          `refresh_token=${refreshToken}; path=/; expires=${new Date(
+            Date.now() + 1000 * 60 * 60 * 24,
+          )}; HttpOnly`,
+        ]);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
