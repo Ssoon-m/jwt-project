@@ -58,6 +58,7 @@ App.getInitialProps = async ({ Component, ctx }: AppContext) => {
         const { accessToken, refreshToken } = await postRefreshToken({
           refresh: refresh_token,
         });
+        pageProps.tokenRemainingTime = getTokenRemainingTime(accessToken);
         ctx.res?.setHeader('Set-Cookie', [
           `access_token=${accessToken}; path=/; expires=${new Date(
             Date.now() + 1000 * 30,
