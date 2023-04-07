@@ -7,7 +7,7 @@ import { getMe } from '@/lib/apis/me';
 import { useState } from 'react';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getCookie } from 'cookies-next';
-import { withNotAuth } from '../hoc/withNotAuth';
+import { withNotLogin } from '../hoc/withNotLogin';
 import { postAdmin, postRefreshToken } from '@/lib/apis/auth';
 
 const Home = () => {
@@ -66,8 +66,11 @@ const Home = () => {
 
 export default Home;
 
-export const getServerSideProps: GetServerSideProps = withNotAuth((context) => {
-  return {
-    props: {},
-  };
-});
+export const getServerSideProps: GetServerSideProps = withNotLogin(
+  (context) => {
+    console.log('withNotAuth');
+    return {
+      props: {},
+    };
+  },
+);

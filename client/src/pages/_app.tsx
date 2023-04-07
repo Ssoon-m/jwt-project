@@ -25,26 +25,41 @@ function getTokenRemainingTime(token: string) {
 
 function App({ Component, pageProps }: AppProps): ReactElement {
   return (
-    <TokenRefreshProvider>
-      <Container maxWidth="xs" sx={{ height: '100%' }}>
-        <Box
-          sx={{
-            height: '100%',
-          }}
-        >
-          <Component {...pageProps} />
-        </Box>
-      </Container>
-      <Core remainingTime={pageProps.tokenRemainingTime} />
-    </TokenRefreshProvider>
+    // <TokenRefreshProvider>
+    <Container maxWidth="xs" sx={{ height: '100%' }}>
+      <Box
+        sx={{
+          height: '100%',
+        }}
+      >
+        <Component {...pageProps} />
+      </Box>
+    </Container>
+    // <Core remainingTime={pageProps.tokenRemainingTime} />
+    // </TokenRefreshProvider>
   );
 }
+
+// auth/login 진입 시
+// 1.getInitialProps
+// 2.request
+// 3.response
+// 4.withLogin
+
+// root page 진입 시
+// 1.getInitialProps
+// 2.request
+// 3.response
+// 4.getInitialProps
+// 5.getInitialProps
+// 6.withNotAuth
 
 App.getInitialProps = async ({ Component, ctx }: AppContext) => {
   let pageProps: any = {};
   if (Component.getInitialProps) {
     pageProps = await Component.getInitialProps(ctx);
   }
+  console.log('getInitialProps');
 
   const Cookie = ctx.req?.headers.cookie;
 

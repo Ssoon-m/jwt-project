@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 
-const withNotAuth = (
+const withNotLogin = (
   gssp: (context: GetServerSidePropsContext) => { props: any },
 ) => {
   return async (context: GetServerSidePropsContext) => {
@@ -20,4 +20,4 @@ const withNotAuth = (
   };
 };
 
-export { withNotAuth };
+export { withNotLogin };

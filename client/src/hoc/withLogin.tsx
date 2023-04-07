@@ -6,7 +6,6 @@ const withLogin = (
   return async (context: GetServerSidePropsContext) => {
     const { req } = context;
     const token = req.cookies.access_token;
-
     if (token) {
       return {
         redirect: {
