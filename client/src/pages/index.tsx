@@ -66,11 +66,11 @@ const Home = () => {
 
 export default Home;
 
-export const getServerSideProps: GetServerSideProps = withNotLogin(
-  (context) => {
-    console.log('withNotAuth');
-    return {
-      props: {},
-    };
-  },
-);
+// export const getServerSideProps: GetServerSideProps = withNotLogin(
+//   (context) => {
+//     console.log('withNotLogin');
+//     return {
+//       props: {},
+//     };
+//   },
+// );

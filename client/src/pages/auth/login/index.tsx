@@ -14,9 +14,9 @@ const LoginPage = () => {
 
 export default LoginPage;
 
-export const getServerSideProps: GetServerSideProps = withLogin((context) => {
-  console.log('withLogin');
-  return {
-    props: {},
-  };
-});
+// export const getServerSideProps: GetServerSideProps = withLogin((context) => {
+//   console.log('withLogin');
+//   return {
+//     props: {},
+//   };
+// });

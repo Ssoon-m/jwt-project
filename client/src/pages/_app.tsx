@@ -6,6 +6,7 @@ import Core from '@/lib/token/Core';
 import { ReactElement } from 'react';
 import { decode } from 'js-base64';
 import { postRefreshToken } from '@/lib/apis/auth';
+import { refreshExpireAt, accessExpireAt } from '@/constants/tokenExpire';
 
 function extractAccessToken(cookie: string) {
   const match = cookie.match(/access_token=([^;]+)/);
@@ -23,65 +24,70 @@ function getTokenRemainingTime(token: string) {
   return exp * 1000 - Date.now();
 }
 
+function setCookie(type: 'access_token' | 'refresh_token') {
+  return (token: string) => {
+    let expireAt: string = '';
+    if (type === 'access_token') {
+      expireAt = new Date(Date.now() + accessExpireAt).toUTCString();
+    } else if (type === 'refresh_token') {
+      expireAt = new Date(Date.now() + refreshExpireAt).toUTCString();
+    }
+    return `${type}=${token}; path=/; expires=${expireAt}; HttpOnly`;
+  };
+}
+
 function App({ Component, pageProps }: AppProps): ReactElement {
   return (
-    // <TokenRefreshProvider>
-    <Container maxWidth="xs" sx={{ height: '100%' }}>
-      <Box
-        sx={{
-          height: '100%',
-        }}
-      >
-        <Component {...pageProps} />
-      </Box>
-    </Container>
-    // <Core remainingTime={pageProps.tokenRemainingTime} />
-    // </TokenRefreshProvider>
+    <TokenRefreshProvider>
+      <Container maxWidth="xs" sx={{ height: '100%' }}>
+        <Box
+          sx={{
+            height: '100%',
+          }}
+        >
+          <Component {...pageProps} />
+        </Box>
+      </Container>
+      <Core remainingTime={pageProps.tokenRemainingTime} />
+    </TokenRefreshProvider>
   );
 }
 
-// auth/login 진입 시
-// 1.getInitialProps
-// 2.request
-// 3.response
-// 4.withLogin
-
-// root page 진입 시
-// 1.getInitialProps
-// 2.request
-// 3.response
-// 4.getInitialProps
-// 5.getInitialProps
-// 6.withNotAuth
-
-App.getInitialProps = async ({ Component, ctx }: AppContext) => {
+App.getInitialProps = async ({ Component, ctx, router }: AppContext) => {
   let pageProps: any = {};
   if (Component.getInitialProps) {
     pageProps = await Component.getInitialProps(ctx);
   }
-  console.log('getInitialProps');
-
   const Cookie = ctx.req?.headers.cookie;
-
+  // ssr 에서만 동작
   if (Cookie) {
     const access_token = extractAccessToken(Cookie);
     const refresh_token = extractRefreshToken(Cookie);
-    if (access_token) {
+    if (access_token && refresh_token) {
       pageProps.tokenRemainingTime = getTokenRemainingTime(access_token);
+    } else if (access_token && !refresh_token) {
+      if (router.pathname !== '/auth/login') {
+        ctx.res?.writeHead(302, { Location: '/auth/login' });
+        ctx.res?.end();
+      }
     } else if (!access_token && refresh_token) {
       try {
         const { accessToken, refreshToken } = await postRefreshToken({
           refresh: refresh_token,
         });
-        pageProps.tokenRemainingTime = getTokenRemainingTime(accessToken);
-        ctx.res?.setHeader('Set-Cookie', [
-          `access_token=${accessToken}; path=/; expires=${new Date(
-            Date.now() + 1000 * 30,
-          )}; HttpOnly`,
-          `refresh_token=${refreshToken}; path=/; expires=${new Date(
-            Date.now() + 1000 * 60 * 60 * 24,
-          )}; HttpOnly`,
-        ]);
+        if (accessToken && refreshToken) {
+          pageProps.tokenRemainingTime = getTokenRemainingTime(accessToken);
+          const accessCookie = setCookie('access_token');
+          const refreshCookie = setCookie('refresh_token');
+          ctx.res?.setHeader('Set-Cookie', [
+            accessCookie(accessToken),
+            refreshCookie(refreshToken),
+          ]);
+          if (accessToken && router.pathname === '/auth/login') {
+            ctx.res?.writeHead(302, { Location: '/' });
+            ctx.res?.end();
+          }
+        }
       } catch (e) {
         console.error(e);
       }
