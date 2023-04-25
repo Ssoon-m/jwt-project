@@ -1,9 +1,8 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import RegisterForm from '@/components/RegisterForm';
-import { getCookie } from 'cookies-next';
 import { GetServerSideProps } from 'next';
-import { withNotLogin } from '@/hoc/withNotLogin';
+import { extractAccessToken } from '@/pages/_app';
 const RegisterPage = () => {
   return (
     <Layout>
@@ -12,4 +11,20 @@ const RegisterPage = () => {
   );
 };
 
-export default withNotLogin(RegisterPage);
+export default RegisterPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const cookie = context.req.headers.cookie ?? '';
+  const access_token = extractAccessToken(cookie);
+  if (access_token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+      props: {},
+    };
+  }
+  return {
+    props: {},
+  };
+};

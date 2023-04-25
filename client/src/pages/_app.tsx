@@ -11,12 +11,12 @@ import { useUserStore } from '@/store/user';
 import { getMe } from '@/lib/apis/me';
 import StoreInitializer from '@/core/StoreInitializer';
 
-function extractAccessToken(cookie: string) {
+export function extractAccessToken(cookie: string) {
   const match = cookie.match(/access_token=([^;]+)/);
   return match ? match[1] : null;
 }
 
-function extractRefreshToken(cookie: string) {
+export function extractRefreshToken(cookie: string) {
   const match = cookie.match(/refresh_token=([^;]+)/);
   return match ? match[1] : null;
 }
@@ -69,7 +69,7 @@ App.getInitialProps = async ({ Component, ctx, router }: AppContext) => {
   if (Cookie) {
     const access_token = extractAccessToken(Cookie);
     const refresh_token = extractRefreshToken(Cookie);
-    if (access_token && refresh_token) {
+    if (access_token) {
       pageProps.tokenRemainingTime = getTokenRemainingTime(access_token);
       pageProps.user = await getMe({ access_token });
     } else if (!access_token && refresh_token) {

@@ -4,9 +4,9 @@ import { useRouter } from 'next/router';
 import { Box } from '@mui/system';
 import Layout from '@/components/Layout';
 import { useUserStore } from '@/store/user';
-import { withLogin } from '@/hoc/withLogin';
-import { getMe } from '@/lib/apis/me';
 import { useState } from 'react';
+import { extractAccessToken, extractRefreshToken } from './_app';
+import { GetServerSideProps } from 'next';
 
 const Home = () => {
   const [user, setUser] = useUserStore((state) => [state.user, state.setUser]);
@@ -61,4 +61,21 @@ const Home = () => {
   );
 };
 
-export default withLogin(Home);
+export default Home;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const cookie = context.req.headers.cookie ?? '';
+  const access_token = extractAccessToken(cookie);
+  const refresh_token = extractRefreshToken(cookie);
+  if (!access_token && !refresh_token) {
+    return {
+      redirect: {
+        destination: '/auth/login',
+      },
+      props: {},
+    };
+  }
+  return {
+    props: {},
+  };
+};
