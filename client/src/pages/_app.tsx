@@ -7,6 +7,9 @@ import { ReactElement } from 'react';
 import { decode } from 'js-base64';
 import { postRefreshToken } from '@/lib/apis/auth';
 import { refreshExpireAt, accessExpireAt } from '@/constants/tokenExpire';
+import { useUserStore } from '@/store/user';
+import { getMe } from '@/lib/apis/me';
+import StoreInitializer from '@/core/StoreInitializer';
 
 function extractAccessToken(cookie: string) {
   const match = cookie.match(/access_token=([^;]+)/);
@@ -39,6 +42,7 @@ function setCookie(type: 'access_token' | 'refresh_token') {
 function App({ Component, pageProps }: AppProps): ReactElement {
   return (
     <TokenRefreshProvider>
+      <StoreInitializer user={pageProps.user} />
       <Container maxWidth="xs" sx={{ height: '100%' }}>
         <Box
           sx={{
@@ -58,6 +62,8 @@ App.getInitialProps = async ({ Component, ctx, router }: AppContext) => {
   if (Component.getInitialProps) {
     pageProps = await Component.getInitialProps(ctx);
   }
+
+  pageProps.user = null;
   const Cookie = ctx.req?.headers.cookie;
   // ssr 에서만 동작
   if (Cookie) {
@@ -65,11 +71,7 @@ App.getInitialProps = async ({ Component, ctx, router }: AppContext) => {
     const refresh_token = extractRefreshToken(Cookie);
     if (access_token && refresh_token) {
       pageProps.tokenRemainingTime = getTokenRemainingTime(access_token);
-    } else if (access_token && !refresh_token) {
-      if (router.pathname !== '/auth/login') {
-        ctx.res?.writeHead(302, { Location: '/auth/login' });
-        ctx.res?.end();
-      }
+      pageProps.user = await getMe({ access_token });
     } else if (!access_token && refresh_token) {
       try {
         const { accessToken, refreshToken } = await postRefreshToken({
@@ -77,6 +79,7 @@ App.getInitialProps = async ({ Component, ctx, router }: AppContext) => {
         });
         if (accessToken && refreshToken) {
           pageProps.tokenRemainingTime = getTokenRemainingTime(accessToken);
+          pageProps.user = await getMe({ access_token: accessToken });
           const accessCookie = setCookie('access_token');
           const refreshCookie = setCookie('refresh_token');
           ctx.res?.setHeader('Set-Cookie', [
@@ -91,9 +94,13 @@ App.getInitialProps = async ({ Component, ctx, router }: AppContext) => {
       } catch (e) {
         console.error(e);
       }
+    } else if (!access_token && !refresh_token) {
+      if (router.pathname !== '/auth/login') {
+        ctx.res?.writeHead(302, { Location: '/auth/login' });
+        ctx.res?.end();
+      }
     }
   }
-
   return { pageProps };
 };
 

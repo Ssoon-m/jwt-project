@@ -3,7 +3,7 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getCookie } from 'cookies-next';
-import { withLogin } from '@/hoc/withLogin';
+import { withNotLogin } from '@/hoc/withNotLogin';
 const LoginPage = () => {
   return (
     <Layout>
@@ -12,7 +12,7 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default withNotLogin(LoginPage);
 
 // export const getServerSideProps: GetServerSideProps = withLogin((context) => {
 //   console.log('withLogin');

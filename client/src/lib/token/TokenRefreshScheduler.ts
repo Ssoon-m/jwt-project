@@ -41,7 +41,7 @@ class TokenRefreshScheduler {
 
   async refresh() {
     if (this.shouldRefresh()) {
-      postRefreshToken();
+      await postRefreshToken();
     }
     this.schedule();
   }
@@ -61,7 +61,11 @@ class TokenRefreshScheduler {
     try {
       await getMe();
     } catch (e: any) {
-      if (e.response.data.statusCode === 401) {
+      if (
+        e.response.data.statusCode === 401 &&
+        (e.response.data.message === 'token expired error' ||
+          e.response.data.message === 'not exist access_token')
+      ) {
         await this.refresh();
         this.schedule();
       }

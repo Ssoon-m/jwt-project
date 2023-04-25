@@ -3,11 +3,15 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { postAuthLogin } from '@/lib/apis/auth';
 import Link from 'next/link';
+import { useUserStore } from '@/store/user';
+import { getMe } from '@/lib/apis/me';
 
 const LoginForm = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  const setUser = useUserStore((state) => state.setUser);
 
   const handleUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.currentTarget.value);
@@ -21,6 +25,8 @@ const LoginForm = () => {
         username,
         password,
       });
+      const userInfo = await getMe();
+      setUser(userInfo);
       router.push('/');
     } catch (e: any) {
       alert(e.response.data.message);

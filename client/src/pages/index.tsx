@@ -3,24 +3,21 @@ import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Box } from '@mui/system';
 import Layout from '@/components/Layout';
+import { useUserStore } from '@/store/user';
+import { withLogin } from '@/hoc/withLogin';
 import { getMe } from '@/lib/apis/me';
 import { useState } from 'react';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { getCookie } from 'cookies-next';
-import { withNotLogin } from '../hoc/withNotLogin';
-import { postAdmin, postRefreshToken } from '@/lib/apis/auth';
 
 const Home = () => {
+  const [user, setUser] = useUserStore((state) => [state.user, state.setUser]);
   const router = useRouter();
   const [username, setUsername] = useState('');
 
-  const handleGetMe = async () => {
-    try {
-      const { username } = await getMe();
-      setUsername(username);
-    } catch (e: any) {
-      alert(e.response.data.message);
-    }
+  const handleLogoutClick = async () => {
+    setUser(null);
+    // 실제 로그아웃을 구현 할땐 서버에 logout api 호출 시 클라이언트 쿠키를 다 지워주고
+    // 클라이언트에서는 window.location.href를 통해 창 새로고침을 해주면
+    // 자연스럽게 _app의 ssr로직을 다시 타게 되어서 쿠키가 비어진 채로 요청이 들어가게 됨.
   };
 
   const handleGrantAdminRole = async () => {
@@ -52,25 +49,16 @@ const Home = () => {
             </Button>
           </Box>
           <Box>
-            <Button onClick={handleGetMe}>회원정보 가져오기</Button>
-            <Typography>{username}</Typography>
+            {user && <Typography>{user.username}</Typography>}
+            <Button onClick={handleLogoutClick}>회원정보 가져오기</Button>
           </Box>
-          <Box>
+          {/* <Box>
             <Button onClick={handleGrantAdminRole}>어드민 권한 부여</Button>
-          </Box>
+          </Box> */}
         </Layout>
       </main>
     </>
   );
 };
 
-export default Home;
-
-// export const getServerSideProps: GetServerSideProps = withNotLogin(
-//   (context) => {
-//     console.log('withNotLogin');
-//     return {
-//       props: {},
-//     };
-//   },
-// );
+export default withLogin(Home);
